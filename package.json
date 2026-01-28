@@ -1,0 +1,50 @@
+{
+  "name": "termin-api",
+  "version": "1.0.0",
+  "description": "Modern API testing tool for terminal using OpenTUI - Like Postman but in CLI",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "termin-api": "./dist/cli.js",
+    "termin": "./dist/cli.js"
+  },
+  "scripts": {
+    "dev": "tsx src/index.tsx",
+    "build": "tsc",
+    "start": "node dist/cli.js",
+    "prepare": "npm run build"
+  },
+  "dependencies": {
+    "@opentui/core": "latest",
+    "axios": "^1.6.0",
+    "chalk": "^5.3.0",
+    "lowdb": "^7.0.0",
+    "commander": "^11.1.0",
+    "gradient-string": "^2.0.2",
+    "cli-spinners": "^2.9.0",
+    "highlight.js": "^11.9.0",
+    "keytar": "^7.9.0",
+    "dotenv": "^16.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.0",
+    "tsx": "^4.7.0"
+  },
+  "keywords": [
+    "api",
+    "rest",
+    "graphql",
+    "postman",
+    "cli",
+    "tui",
+    "terminal",
+    "opentui",
+    "http-client"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
