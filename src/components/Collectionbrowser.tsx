@@ -1,12 +1,12 @@
 /**
  * CollectionBrowser Component - OpenTUI
- * 
+ *
  * Displays collections and folders in a tree view on the left sidebar
  * Allows navigation, selection, and management of collections and requests
  */
 
-import { Component, Box, Text, List } from '@opentui/core';
-import type { Collection, Request, Folder } from '../types/index';
+import { Component, Box, Text, List } from "@opentui/core";
+import type { Collection, Request, Folder } from "../types/index";
 
 interface Props {
   collections: Collection[];
@@ -27,7 +27,7 @@ interface State {
 }
 
 interface ListItem {
-  type: 'collection' | 'folder' | 'request';
+  type: "collection" | "folder" | "request";
   id: string;
   data: Collection | Folder | Request;
   indent: number;
@@ -37,25 +37,25 @@ interface ListItem {
 export class CollectionBrowser extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    
+
     this.state = {
       selectedIndex: 0,
       expandedCollections: new Set(),
       expandedFolders: new Set(),
-      searchQuery: '',
-      showNewCollectionPrompt: false
+      searchQuery: "",
+      showNewCollectionPrompt: false,
     };
   }
 
   componentDidMount() {
     // Keyboard shortcuts for collection browser
-    this.on('key:up', () => this.navigateUp());
-    this.on('key:down', () => this.navigateDown());
-    this.on('key:enter', () => this.handleSelect());
-    this.on('key:space', () => this.handleToggleExpand());
-    this.on('key:+', () => this.handleNewCollection());
-    this.on('key:delete', () => this.handleDelete());
-    this.on('key:/', () => this.handleSearch());
+    this.on("key:up", () => this.navigateUp());
+    this.on("key:down", () => this.navigateDown());
+    this.on("key:enter", () => this.handleSelect());
+    this.on("key:space", () => this.handleToggleExpand());
+    this.on("key:+", () => this.handleNewCollection());
+    this.on("key:delete", () => this.handleDelete());
+    this.on("key:/", () => this.handleSearch());
   }
 
   /**
@@ -66,38 +66,40 @@ export class CollectionBrowser extends Component<Props, State> {
     const { collections } = this.props;
     const { expandedCollections, expandedFolders, searchQuery } = this.state;
 
-    collections.forEach(collection => {
+    collections.forEach((collection) => {
       // Add collection item
       items.push({
-        type: 'collection',
+        type: "collection",
         id: collection.id,
         data: collection,
-        indent: 0
+        indent: 0,
       });
 
       // If expanded, add folders and requests
       if (expandedCollections.has(collection.id)) {
         // Add folders
-        collection.folders.forEach(folder => {
+        collection.folders.forEach((folder) => {
           items.push({
-            type: 'folder',
+            type: "folder",
             id: folder.id,
             data: folder,
             indent: 1,
-            parentId: collection.id
+            parentId: collection.id,
           });
 
           // If folder expanded, add its requests
           if (expandedFolders.has(folder.id)) {
-            folder.requests.forEach(requestId => {
-              const request = collection.requests.find(r => r.id === requestId);
+            folder.requests.forEach((requestId) => {
+              const request = collection.requests.find(
+                (r) => r.id === requestId,
+              );
               if (request) {
                 items.push({
-                  type: 'request',
+                  type: "request",
                   id: request.id,
                   data: request,
                   indent: 2,
-                  parentId: folder.id
+                  parentId: folder.id,
                 });
               }
             });
@@ -106,17 +108,17 @@ export class CollectionBrowser extends Component<Props, State> {
 
         // Add requests not in folders
         const requestsInFolders = new Set(
-          collection.folders.flatMap(f => f.requests)
+          collection.folders.flatMap((f) => f.requests),
         );
         collection.requests
-          .filter(r => !requestsInFolders.has(r.id))
-          .forEach(request => {
+          .filter((r) => !requestsInFolders.has(r.id))
+          .forEach((request) => {
             items.push({
-              type: 'request',
+              type: "request",
               id: request.id,
               data: request,
               indent: 1,
-              parentId: collection.id
+              parentId: collection.id,
             });
           });
       }
@@ -124,12 +126,12 @@ export class CollectionBrowser extends Component<Props, State> {
 
     // Filter by search query if present
     if (searchQuery) {
-      return items.filter(item => {
-        if (item.type === 'collection') {
+      return items.filter((item) => {
+        if (item.type === "collection") {
           return (item.data as Collection).name
             .toLowerCase()
             .includes(searchQuery.toLowerCase());
-        } else if (item.type === 'request') {
+        } else if (item.type === "request") {
           return (item.data as Request).name
             .toLowerCase()
             .includes(searchQuery.toLowerCase());
@@ -147,14 +149,14 @@ export class CollectionBrowser extends Component<Props, State> {
   navigateUp() {
     const items = this.buildItemList();
     this.setState({
-      selectedIndex: Math.max(0, this.state.selectedIndex - 1)
+      selectedIndex: Math.max(0, this.state.selectedIndex - 1),
     });
   }
 
   navigateDown() {
     const items = this.buildItemList();
     this.setState({
-      selectedIndex: Math.min(items.length - 1, this.state.selectedIndex + 1)
+      selectedIndex: Math.min(items.length - 1, this.state.selectedIndex + 1),
     });
   }
 
@@ -164,20 +166,20 @@ export class CollectionBrowser extends Component<Props, State> {
   handleSelect() {
     const items = this.buildItemList();
     const item = items[this.state.selectedIndex];
-    
+
     if (!item) return;
 
     switch (item.type) {
-      case 'collection':
+      case "collection":
         this.props.onSelectCollection(item.id);
-        this.toggleExpanded(item.id, 'collection');
+        this.toggleExpanded(item.id, "collection");
         break;
-      
-      case 'folder':
-        this.toggleExpanded(item.id, 'folder');
+
+      case "folder":
+        this.toggleExpanded(item.id, "folder");
         break;
-      
-      case 'request':
+
+      case "request":
         this.props.onSelectRequest(item.data as Request);
         break;
     }
@@ -189,18 +191,18 @@ export class CollectionBrowser extends Component<Props, State> {
   handleToggleExpand() {
     const items = this.buildItemList();
     const item = items[this.state.selectedIndex];
-    
+
     if (!item) return;
 
-    if (item.type === 'collection') {
-      this.toggleExpanded(item.id, 'collection');
-    } else if (item.type === 'folder') {
-      this.toggleExpanded(item.id, 'folder');
+    if (item.type === "collection") {
+      this.toggleExpanded(item.id, "collection");
+    } else if (item.type === "folder") {
+      this.toggleExpanded(item.id, "folder");
     }
   }
 
-  toggleExpanded(id: string, type: 'collection' | 'folder') {
-    if (type === 'collection') {
+  toggleExpanded(id: string, type: "collection" | "folder") {
+    if (type === "collection") {
       const expanded = new Set(this.state.expandedCollections);
       if (expanded.has(id)) {
         expanded.delete(id);
@@ -232,9 +234,9 @@ export class CollectionBrowser extends Component<Props, State> {
   handleDelete() {
     const items = this.buildItemList();
     const item = items[this.state.selectedIndex];
-    
-    if (!item || item.type !== 'collection') return;
-    
+
+    if (!item || item.type !== "collection") return;
+
     if (this.props.onDeleteCollection) {
       this.props.onDeleteCollection(item.id);
     }
@@ -253,19 +255,19 @@ export class CollectionBrowser extends Component<Props, State> {
    */
   getIcon(item: ListItem): string {
     switch (item.type) {
-      case 'collection':
+      case "collection":
         const isExpanded = this.state.expandedCollections.has(item.id);
-        return isExpanded ? '📂' : '📁';
-      
-      case 'folder':
+        return isExpanded ? "📂" : "📁";
+
+      case "folder":
         const isFolderExpanded = this.state.expandedFolders.has(item.id);
-        return isFolderExpanded ? '📂' : '📁';
-      
-      case 'request':
-        return '📄';
-      
+        return isFolderExpanded ? "📂" : "📁";
+
+      case "request":
+        return "📄";
+
       default:
-        return '•';
+        return "•";
     }
   }
 
@@ -274,59 +276,66 @@ export class CollectionBrowser extends Component<Props, State> {
    */
   getMethodColor(method: string): string {
     const colors: Record<string, string> = {
-      'GET': 'green',
-      'POST': 'blue',
-      'PUT': 'yellow',
-      'PATCH': 'yellow',
-      'DELETE': 'red',
-      'HEAD': 'gray',
-      'OPTIONS': 'gray'
+      GET: "green",
+      POST: "blue",
+      PUT: "yellow",
+      PATCH: "yellow",
+      DELETE: "red",
+      HEAD: "gray",
+      OPTIONS: "gray",
     };
-    return colors[method] || 'white';
+    return colors[method] || "white";
   }
 
   /**
    * Render item
    */
   renderItem(item: ListItem, isSelected: boolean) {
-    const indent = '  '.repeat(item.indent);
-    const cursor = isSelected ? '► ' : '  ';
+    const indent = "  ".repeat(item.indent);
+    const cursor = isSelected ? "► " : "  ";
     const icon = this.getIcon(item);
 
-    if (item.type === 'collection') {
+    if (item.type === "collection") {
       const collection = item.data as Collection;
       return (
         <Box key={item.id}>
-          <Text color={isSelected ? 'cyan' : undefined} bold={isSelected}>
-            {cursor}{icon} {collection.name}
+          <Text color={isSelected ? "cyan" : undefined} bold={isSelected}>
+            {cursor}
+            {icon} {collection.name}
             <Text dimColor> ({collection.requests.length})</Text>
           </Text>
         </Box>
       );
     }
 
-    if (item.type === 'folder') {
+    if (item.type === "folder") {
       const folder = item.data as Folder;
       return (
         <Box key={item.id}>
-          <Text color={isSelected ? 'cyan' : undefined}>
-            {cursor}{indent}{icon} {folder.name}
+          <Text color={isSelected ? "cyan" : undefined}>
+            {cursor}
+            {indent}
+            {icon} {folder.name}
             <Text dimColor> ({folder.requests.length})</Text>
           </Text>
         </Box>
       );
     }
 
-    if (item.type === 'request') {
+    if (item.type === "request") {
       const request = item.data as Request;
       const methodColor = this.getMethodColor(request.method);
-      
+
       return (
         <Box key={item.id}>
-          <Text color={isSelected ? 'cyan' : undefined}>
-            {cursor}{indent}{icon}{' '}
-            <Text color={methodColor} bold>{request.method}</Text>
-            {' '}{request.name}
+          <Text color={isSelected ? "cyan" : undefined}>
+            {cursor}
+            {indent}
+            {icon}{" "}
+            <Text color={methodColor} bold>
+              {request.method}
+            </Text>{" "}
+            {request.name}
           </Text>
         </Box>
       );
@@ -354,7 +363,7 @@ export class CollectionBrowser extends Component<Props, State> {
     const { collections } = this.props;
     const totalRequests = collections.reduce(
       (sum, col) => sum + col.requests.length,
-      0
+      0,
     );
 
     return (
@@ -374,20 +383,20 @@ export class CollectionBrowser extends Component<Props, State> {
       <Box direction="column" width="100%" height="100%">
         {/* Header */}
         <Box padding={1} borderBottom borderColor="gray">
-          <Text bold color="cyan">📁 Collections</Text>
+          <Text bold color="cyan">
+            📁 Collections
+          </Text>
           <Box flexGrow={1} />
           <Text dimColor>(↑↓ Enter)</Text>
         </Box>
 
         {/* List */}
         <Box direction="column" flexGrow={1} overflow="scroll">
-          {collections.length === 0 ? (
-            this.renderEmpty()
-          ) : (
-            items.map((item, index) => 
-              this.renderItem(item, index === this.state.selectedIndex)
-            )
-          )}
+          {collections.length === 0
+            ? this.renderEmpty()
+            : items.map((item, index) =>
+                this.renderItem(item, index === this.state.selectedIndex),
+              )}
         </Box>
 
         {/* Footer */}
